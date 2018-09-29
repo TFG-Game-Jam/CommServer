@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class Networking : MonoBehaviour {
-
+    
     //Declare serializable classes
 
     [Serializable]
@@ -15,48 +15,54 @@ public class Networking : MonoBehaviour {
     }
 
     [Serializable]
-    public class Orientation
+    public class Actions
     {
-        bool port;
-        bool starboard;
+        public bool port;
+        public bool starboard;
+        public bool fixGenerator; 
+        public bool loadCyan;
+        public bool loadGreen;
+        public bool loadPurple;
+        public bool loadWhite;
     }
 
+    public static Actions playerActions = new Actions();
 
 	// Use this for initialization
 	void Start () {
-        StartCoroutine(GetOxygen());
+        // StartCoroutine(GetOxygen());
         //StartCoroutine(UpdateOxygen());
 	}
 
     //Oxygen management
     //Get Oxygen level from server
-    IEnumerator GetOxygen()
-    {
-        UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-state");
-        yield return www.SendWebRequest();
+    // IEnumerator GetOxygen()
+    // {
+    //     UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-state");
+    //     yield return www.SendWebRequest();
 
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            // Show results as text
-            Debug.Log(www.downloadHandler.text);
+    //     if (www.isNetworkError || www.isHttpError)
+    //     {
+    //         Debug.Log(www.error);
+    //     }
+    //     else
+    //     {
+    //         // Show results as text
+    //         Debug.Log(www.downloadHandler.text);
 
-            // Or retrieve results as binary data
-            byte[] results = www.downloadHandler.data;
+    //         // Or retrieve results as binary data
+    //         byte[] results = www.downloadHandler.data;
 
-            Oxygen o = new Oxygen();
+    //         Oxygen o = new Oxygen();
 
-            string json = www.downloadHandler.text;
+    //         string json = www.downloadHandler.text;
 
-            JsonUtility.FromJsonOverwrite(json, o);
+    //         JsonUtility.FromJsonOverwrite(json, o);
 
-            Debug.Log(o.oxygen);
+    //         Debug.Log(o.oxygen);
 
-           }
-    }
+    //        }
+    // }
 
     //Update oxygen level to server
     IEnumerator UpdateOxygen()
@@ -79,21 +85,24 @@ public class Networking : MonoBehaviour {
     }
     // Update is called once per frame
     void Update () {
-        //StartCoroutine(GetOrientation());
+        StartCoroutine(GetPlayerActions());
 	}
 
-    IEnumerator GetOrientation()
+	public IEnumerator GetPlayerActions()
     {
         UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-actions");
         yield return www.SendWebRequest();
 
-        Orientation or = new Orientation();
+        //Orientation or = new Orientation();
 
         string json = www.downloadHandler.text;
 
-        JsonUtility.FromJsonOverwrite(json, or);
+        JsonUtility.FromJsonOverwrite(json, playerActions);
 
-        Debug.Log(or);
+        
+
+        //if (or.port == true) move pra esquerda
+        // if (or.starboard == true) move pra direita
         
     }
 }
