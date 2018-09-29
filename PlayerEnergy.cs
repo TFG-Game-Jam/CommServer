@@ -15,12 +15,10 @@ public class PlayerEnergy : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-        updated_energy--;
-        Networking.player_energy.value = updated_energy;
-
-        if (frames == 5)
+        Debug.Log(frames.ToString());
+        if (frames == 100)
         {
+            Networking.update = true;
             updated_energy--;
             frames = 0;
             Networking.player_energy.value = updated_energy;

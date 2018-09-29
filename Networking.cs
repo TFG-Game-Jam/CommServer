@@ -30,6 +30,8 @@ public class Networking : MonoBehaviour {
 
     public static Updated_Energy player_energy = new Updated_Energy();
 
+    public static bool update = false;
+
 	// Use this for initialization
 	void Start () {
         // StartCoroutine(GetOxygen());
@@ -62,10 +64,17 @@ public class Networking : MonoBehaviour {
             Debug.Log("Updated Player Energy");
         }
     }
+
+
     // Update is called once per frame
     void Update () {
-        StartCoroutine(GetPlayerActions());
-        StartCoroutine(UpdateEnergy());
+        if (update)
+        {
+            StartCoroutine(GetPlayerActions());
+            StartCoroutine(UpdateEnergy());
+            update = false;
+        }
+        Debug.Log(update.ToString());
 	}
 
 	public IEnumerator GetPlayerActions()
