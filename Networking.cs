@@ -6,10 +6,19 @@ using UnityEngine.Networking;
 
 public class Networking : MonoBehaviour {
 
+    //Declare serializable classes
+
     [Serializable]
     public class Oxygen
     {
         public int oxygen;
+    }
+
+    [Serializable]
+    public class Orientation
+    {
+        bool port;
+        bool starboard;
     }
 
 
@@ -41,12 +50,29 @@ public class Networking : MonoBehaviour {
 
             JsonUtility.FromJsonOverwrite(json, o);
 
+            Debug.Log(o.oxygen);
+
            }
     }
 
 
     // Update is called once per frame
     void Update () {
-		
+        //StartCoroutine(GetOrientation());
 	}
+
+    IEnumerator GetOrientation()
+    {
+        UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-actions");
+        yield return www.SendWebRequest();
+
+        Orientation or = new Orientation();
+
+        string json = www.downloadHandler.text;
+
+        JsonUtility.FromJsonOverwrite(json, or);
+
+        Debug.Log(or);
+        
+    }
 }
