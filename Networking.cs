@@ -9,9 +9,9 @@ public class Networking : MonoBehaviour {
     //Declare serializable classes
 
     [Serializable]
-    public class Oxygen
+    public class Updated_Energy
     {
-        public int oxygen;
+        public int value = 100;
     }
 
     [Serializable]
@@ -28,11 +28,58 @@ public class Networking : MonoBehaviour {
 
     public static Actions playerActions = new Actions();
 
+    public static Updated_Energy player_energy = new Updated_Energy();
+
 	// Use this for initialization
 	void Start () {
         // StartCoroutine(GetOxygen());
         //StartCoroutine(UpdateOxygen());
 	}
+
+    //Update energy level to server
+    IEnumerator UpdateEnergy()
+    {
+
+        WWWForm form = new WWWForm();
+        form.AddField("energy", player_energy.value);
+        //form.AddField("players",["", "", "", "", "", "", ""]);
+        form.AddField("shotsTaken", 1);
+
+        UnityWebRequest www = UnityWebRequest.Post("http://10.100.201.130:5000/set-state", form);
+        yield return www.SendWebRequest();
+        
+
+        if (www.isNetworkError || www.isHttpError)
+        {
+            if (www.isNetworkError)
+                Debug.Log("Network erros");
+            else
+                Debug.Log("isHttpError");
+            Debug.Log(www.responseCode.ToString());
+        }
+        else
+        {
+            Debug.Log("Updated Player Energy");
+        }
+    }
+    // Update is called once per frame
+    void Update () {
+        StartCoroutine(GetPlayerActions());
+        StartCoroutine(UpdateEnergy());
+	}
+
+	public IEnumerator GetPlayerActions()
+    {
+
+        UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-actions");
+
+        yield return www.SendWebRequest();
+
+        string json = www.downloadHandler.text;
+
+        JsonUtility.FromJsonOverwrite(json, playerActions);
+
+    }
 
     //Oxygen management
     //Get Oxygen level from server
@@ -63,46 +110,4 @@ public class Networking : MonoBehaviour {
 
     //        }
     // }
-
-    //Update oxygen level to server
-    IEnumerator UpdateOxygen()
-    {
-        List<IMultipartFormSection> formData = new List<IMultipartFormSection>();
-        formData.Add(new MultipartFormDataSection("field1=100"));
-
-        UnityWebRequest www = UnityWebRequest.Post("http://10.100.201.130:5000/get-state", formData);
-        yield return www.SendWebRequest();
-        
-
-        if (www.isNetworkError || www.isHttpError)
-        {
-            Debug.Log(www.error);
-        }
-        else
-        {
-            Debug.Log("Updated oxygen");
-        }
-    }
-    // Update is called once per frame
-    void Update () {
-        StartCoroutine(GetPlayerActions());
-	}
-
-	public IEnumerator GetPlayerActions()
-    {
-        UnityWebRequest www = UnityWebRequest.Get("http://10.100.201.130:5000/get-actions");
-        yield return www.SendWebRequest();
-
-        //Orientation or = new Orientation();
-
-        string json = www.downloadHandler.text;
-
-        JsonUtility.FromJsonOverwrite(json, playerActions);
-
-        
-
-        //if (or.port == true) move pra esquerda
-        // if (or.starboard == true) move pra direita
-        
-    }
 }
